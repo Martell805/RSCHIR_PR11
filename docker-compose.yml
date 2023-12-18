@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "market"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+  app:
+    image: martell805/rschir-pr6:latest
+    container_name: BookMarket
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/market
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8080:8080"
+  stats:
+    image: martell805/rschir-pr11:latest
+    container_name: Stats
+    depends_on:
+      - app
+    environment:
+      - HISTORY_HOST=http://app:8080/history
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
